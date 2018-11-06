@@ -1,0 +1,64 @@
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+
+const int N = (int)1e4;
+typedef int arr[N + 10];
+
+int n, m, S, T;
+arr ufs;
+int bestnum, bestdenom;
+
+struct edge {
+	int x, y, w;
+}e[N + 10];
+
+void link(int x, int y) {
+	pt[++tot] = y, nt[tot] = g[x], g[x] = tot;
+	pt[++tot] = x, nt[tot] = g[y], g[y] = tot;
+}
+
+int find(int x) { return ufs[x] == x ? x : ufs[x] = find(ufs[x]); }
+
+int gcd(int x, int y) { return y == 0 ? x : gcd(y, x % y); }
+
+bool cmp(const edge &a, const edge &b) { return a.w < b.w; }
+
+int main() {
+	freopen("graph.in", "r", stdin);
+	freopen("graph.out", "w", stdout);
+
+	scanf("%d %d", &n, &m);
+	for (int i = 1; i <= m; ++i) scanf("%d %d %d", &e[i].x, &e[i].y, &e[i].w);
+	scanf("%d %d", &S, &T);
+	
+	sort(e + 1, e + m + 1, cmp);
+
+	bestnum = 30001, bestdenom = 1;
+	for (int i = 1; i <= m; ++i) {
+		for (int j = 1; j <= n; ++j) ufs[j] = 1;
+		int j = i;
+		for ( ; j <= m; ++j) {
+			int fx = find(e[j].x), fy = find(e[j].y);
+			if (fx != fy) ufs[fx] = fy;
+			if (find(S) == find(T)) break;
+		}
+
+		if (find(S) == find(T)) {
+			if (e[j].w * bestdenom < e[i].w * bestnum)
+				bestnum = e[j].w, bestdenom = e[i].w;
+		}
+	}
+
+	if (bestnum == 30001) printf("IMPOSSIBLE\n");
+	else {
+		int g = gcd(bestnum, bestdenom);
+		bestnum /= g, bestdenom /= g;
+		if (bestdenom == 1) printf("%d\n", bestnom);
+		else printf("%d/%d\n", bestnum, bestdenom);
+	}
+	
+	return 0;
+}
